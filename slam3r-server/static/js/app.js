@@ -349,6 +349,7 @@ navLogoutBtn.addEventListener('click', () => {
 
 function goToList() {
     disposeDetailViewer();
+    disposeUploadViewer();
     showAppView('list');
     loadModelList();
 }
@@ -358,8 +359,16 @@ function goToUpload() {
     showAppView('upload');
 }
 
+function disposeUploadViewer() {
+    if (uploadViewer) {
+        uploadViewer.dispose();
+        uploadViewer = null;
+    }
+}
+
 function goToDetail(taskId) {
     disposeDetailViewer();
+    disposeUploadViewer();
     showAppView('detail');
     loadDetail(taskId);
 }
@@ -781,17 +790,26 @@ fileInput.addEventListener('change', (e) => {
 
 function handleFile(file) {
     const ext = file.name.split('.').pop().toLowerCase();
-    if (!['mp4', 'mov', 'avi', 'mkv', 'webm'].includes(ext)) {
-        showToast('请选择视频文件（mp4/mov/avi）', 'error');
+    const isZip = ext === 'zip';
+    if (!['mp4', 'mov', 'avi', 'mkv', 'webm', 'zip'].includes(ext)) {
+        showToast('请选择视频文件（mp4/mov/avi）或照片压缩包（zip）', 'error');
         return;
     }
 
     currentFile = file;
 
-    const url = URL.createObjectURL(file);
-    videoPreview.src = url;
     fileName.textContent = `📄 ${file.name}`;
     fileSize.textContent = formatSize(file.size);
+
+    if (isZip) {
+        // zip 文件不预览视频，显示 zip 图标
+        videoPreview.style.display = 'none';
+        fileName.innerHTML = `📦 ${file.name}`;
+    } else {
+        videoPreview.style.display = 'block';
+        const url = URL.createObjectURL(file);
+        videoPreview.src = url;
+    }
 
     uploadZone.style.display = 'none';
     previewArea.style.display = 'block';
