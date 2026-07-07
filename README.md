@@ -1,12 +1,6 @@
 <p align="center">
-  <img src="./media/logo.svg" width="80" height="80" alt="镜界" style="display:none;" />
   <h2 align="center">📷 镜界</h2>
   <p align="center"><strong>上传一段视频，AI 自动生成 3D 模型。</strong><br>记录你到过的每个地方。</p>
-</p>
-
-<p align="center">
-  <img src="./media/replica.gif" width="49%" alt="室内部景" />
-  <img src="./media/wild.gif" width="49%" alt="室外场景" />
 </p>
 
 ## 这是什么
@@ -26,16 +20,42 @@
 | 🎮 3D 爱好者 | 快速获取真实空间的点云数据 |
 | 🔬 开发者 | 在自己的项目里集成 3D 重建能力 |
 
-## 30 秒上手
+## 使用前提
+
+镜界需要 **GPU 环境**（NVIDIA 显卡 + CUDA）来运行 3D 重建模型。目前还不支持一键云服务，需要在自己的电脑上部署。
+
+如果你不熟悉命令行和 Python 环境配置，建议找懂技术的朋友帮忙部署，或者等后续推出云版本。
+
+<details>
+<summary><strong>完整部署流程（给技术人员参考）</strong></summary>
+
+### 1. 环境配置
 
 ```bash
-# 1. 启动 Web 服务
+conda create -n slam3r python=3.11 cmake=3.14.0
+conda activate slam3r
+pip install torch==2.5.0 torchvision==0.20.0 torchaudio==2.5.0 --index-url https://download.pytorch.org/whl/cu118
+pip install -r requirements.txt
+```
+
+### 2. 下载预训练权重
+
+```python
+from slam3r.models import Image2PointsModel, Local2WorldModel
+Image2PointsModel.from_pretrained('siyan824/slam3r_i2p')
+Local2WorldModel.from_pretrained('siyan824/slam3r_l2w')
+```
+
+### 3. 启动服务
+
+```bash
 cd slam3r-server
 python -m uvicorn main:app --host 0.0.0.0 --port 8000
-
-# 2. 浏览器打开 http://localhost:8000
-# 3. 注册 → 上传视频 → 等待重建 → 预览 & 下载
 ```
+
+浏览器打开 `http://localhost:8000` 即可使用。
+
+</details>
 
 ## 功能一览
 
