@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>镜界 — AI 空间建模</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23989BBE' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z'/><circle cx='12' cy='13' r='4'/></svg>">
+</head>
+<body>
+    <!-- ════════════════════════════════════════════ -->
+    <!-- 导航栏                                        -->
+    <!-- ════════════════════════════════════════════ -->
+    <nav class="navbar" id="mainNav">
+        <div class="nav-container">
+            <div class="nav-logo" id="navHomeBtn" role="button" tabindex="0" title="返回列表">
+                <span class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        <polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                </span>
+                <span class="logo-text">镜界</span>
+            </div>
+            <div class="nav-actions">
+                <span class="nav-user-info" id="navUserInfo" style="display:none;">
+                    <span class="nav-avatar-wrap" id="navAvatarWrap" title="点击更换头像">
+                        <img class="nav-avatar" id="navAvatar" src="" alt="头像">
+                        <input type="file" id="avatarInput" accept="image/*" hidden>
+                    </span>
+                    <span class="nav-username" id="navUsername"></span>
+                    <button class="btn-nav-logout" id="navLogoutBtn">退出</button>
+                </span>
+                <button class="btn-nav-new" id="navNewBtn" style="display:none;">+ 新建重建</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ════════════════════════════════════════════ -->
+    <!-- 莫兰迪渐变背景（仅认证页显示）                  -->
+    <!-- ════════════════════════════════════════════ -->
+    <div class="auth-bg" id="authBg">
+        <div class="bg-base"></div>
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+        <div class="blob blob-4"></div>
+        <div class="blob blob-5"></div>
+    </div>
+
+    <!-- 装饰小圆点 -->
+    <div class="auth-deco-dots" id="authDecoDots">
+        <div class="deco-dot d1"></div>
+        <div class="deco-dot d2"></div>
+        <div class="deco-dot d3"></div>
+        <div class="deco-dot d4"></div>
+    </div>
+
+    <!-- ════════════════════════════════════════════ -->
+    <!-- 应用页面背景（列表页/详情页）                   -->
+    <!-- ════════════════════════════════════════════ -->
+    <div class="app-bg" id="appBg">
+        <div class="bg-base"></div>
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+        <div class="blob blob-4"></div>
+        <div class="blob blob-5"></div>
+    </div>
+
+    <!-- ════════════════════════════════════════════ -->
+    <!-- 上传页背景（粉绿蓝紫色系）                     -->
+    <!-- ════════════════════════════════════════════ -->
+    <div class="upload-bg" id="uploadBg">
+        <div class="bg-base"></div>
+        <div class="blob blob-u1"></div>
+        <div class="blob blob-u2"></div>
+        <div class="blob blob-u3"></div>
+        <div class="blob blob-u4"></div>
+        <div class="blob blob-u5"></div>
+        <div class="blob blob-u6"></div>
+    </div>
+
+    <!-- ════════════════════════════════════════════ -->
+    <!-- 视图 A：登录                                 -->
+    <!-- ════════════════════════════════════════════ -->
+    <section class="view auth-view" id="loginView">
+        <div class="auth-page-wrap">
+            <!-- 顶部说明文字 -->
+            <div class="auth-header">
+                <div class="auth-header-title">镜界 —— 镜中世界，忆如所见。</div>
+                <div class="auth-header-subtitle">AI 空间建模 · 上传视频自动生成 3D 模型<br>记录你到过的每个地方</div>
+            </div>
+
+            <!-- 登录卡片 -->
+            <div class="auth-card-morandi">
+
+                <!-- 品牌标识 + 头像上传（点击可上传头像） -->
+                <div class="auth-avatar-wrap" id="authAvatarWrap" title="点击上传头像">
+                    <svg class="auth-avatar-camera" id="authAvatarPlaceholder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                        <circle cx="12" cy="13" r="4"/>
+                    </svg>
+                    <img class="auth-avatar" id="authAvatar" src="" alt="头像" style="display:none;">
+                    <input type="file" id="authAvatarInput" accept="image/*" hidden>
+                </div>
+
+                <div class="brand-name">镜界</div>
+                <div class="brand-desc">登录以管理你的空间模型</div>
+
+                <!-- 错误提示 -->
+                <div class="auth-error" id="loginError" style="display:none;"></div>
+
+                <!-- 表单 -->
+                <form onsubmit="return false;">
+                    <div class="auth-field">
+                        <label class="form-label" for="loginUsername">账号</label>
+                        <input type="text" id="loginUsername" class="auth-input-morandi" placeholder="输入用户名" autocomplete="username">
+                    </div>
+                    <div class="auth-field">
+                        <label class="form-label" for="loginPassword">密码</label>
+                        <input type="password" id="loginPassword" class="auth-input-morandi" placeholder="输入密码" autocomplete="current-password">
+                    </div>
+                    <button type="submit" id="loginBtn" class="btn-morandi">登录</button>
+                </form>
+
+                <!-- 底部链接 -->
+                <div class="auth-links-morandi">
+                    <span class="footer-link" id="gotoRegisterLink">注册账号</span>
+                    <div class="footer-divider"></div>
+                    <span class="footer-link" id="gotoResetLink">忘记密码</span>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════ -->
+    <!-- 视图 B：注册                                -->
+    <!-- ════════════════════════════════════════════ -->
+    <section class="view auth-view" id="registerView" style="display:none;">
+        <div class="auth-page-wrap">
+            <div class="auth-card-morandi">
+
+                <!-- 注册头像（点击上传） -->
+                <div class="auth-avatar-wrap" id="regAvatarWrap" title="点击上传头像">
+                    <svg class="auth-avatar-camera" id="regAvatarPlaceholder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                        <circle cx="12" cy="13" r="4"/>
+                    </svg>
+                    <img class="auth-avatar" id="regAvatar" src="" alt="头像" style="display:none;">
+                    <input type="file" id="regAvatarInput" accept="image/*" hidden>
+                </div>
+
+                <div class="brand-name" style="font-size:22px;">注册账号</div>
+                <div class="brand-desc">创建一个新账号来管理你的空间模型</div>
+
+                <div class="auth-error" id="registerError" style="display:none;"></div>
+
+                <form onsubmit="return false;">
+                    <div class="auth-field">
+                        <label class="form-label" for="registerNickname">用户名</label>
+                        <input type="text" id="registerNickname" class="auth-input-morandi" placeholder="你的显示名称（如：张三的宿舍）" autocomplete="name">
+                    </div>
+                    <div class="auth-field">
+                        <label class="form-label" for="registerUsername">账号</label>
+                        <input type="text" id="registerUsername" class="auth-input-morandi" placeholder="登录用账号，至少 2 个字符" autocomplete="username">
+                    </div>
+                    <div class="auth-field">
+                        <label class="form-label" for="registerPassword">密码</label>
+                        <input type="password" id="registerPassword" class="auth-input-morandi" placeholder="至少 4 个字符" autocomplete="new-password">
+                    </div>
+                    <div class="auth-field">
+                        <label class="form-label" for="registerConfirm">确认密码</label>
+                        <input type="password" id="registerConfirm" class="auth-input-morandi" placeholder="再次输入密码">
+                    </div>
+                    <button type="submit" id="registerBtn" class="btn-morandi">注 册</button>
+                </form>
+
+                <div class="auth-links-morandi">
+                    <span class="footer-link" id="gotoLoginFromRegister">已有账号？去登录</span>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════ -->
+    <!-- 视图 C：重置密码                            -->
+    <!-- ════════════════════════════════════════════ -->
+    <section class="view auth-view" id="resetView" style="display:none;">
+        <div class="auth-page-wrap">
+            <div class="auth-card-morandi">
+
+                <div class="brand-icon sm">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3" opacity="0.5"/>
+                        <path d="M12 2v4m0 12v4m10-10h-4M6 12H2m17.07-7.07l-2.83 2.83M7.76 16.24l-2.83 2.83m14.14 0l-2.83-2.83M7.76 7.76L4.93 4.93"/>
+                    </svg>
+                </div>
+
+                <div class="brand-name" style="font-size:22px;">重置密码</div>
+                <div class="brand-desc">直接设置新密码（无需旧密码验证）</div>
+
+                <div class="auth-error" id="resetError" style="display:none;"></div>
+                <div class="auth-success" id="resetSuccess" style="display:none;"></div>
+
+                <form onsubmit="return false;">
+                    <div class="auth-field">
+                        <label class="form-label" for="resetUsername">账号</label>
+                        <input type="text" id="resetUsername" class="auth-input-morandi" placeholder="输入你的用户名" autocomplete="username">
+                    </div>
+                    <div class="auth-field">
+                        <label class="form-label" for="resetPassword">新密码</label>
+                        <input type="password" id="resetPassword" class="auth-input-morandi" placeholder="至少 4 个字符" autocomplete="new-password">
+                    </div>
+                    <div class="auth-field">
+                        <label class="form-label" for="resetConfirm">确认新密码</label>
+                        <input type="password" id="resetConfirm" class="auth-input-morandi" placeholder="再次输入新密码">
+                    </div>
+                    <button type="submit" id="resetBtn" class="btn-morandi">重置密码</button>
+                </form>
+
+                <div class="auth-links-morandi">
+                    <span class="footer-link" id="gotoLoginFromReset">返回登录</span>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════ -->
+    <!-- 主内容区（应用页面）                           -->
+    <!-- ════════════════════════════════════════════ -->
+    <main class="main-content" id="mainContent">
+
+        <!-- ════════════════════════════════════════ -->
+        <!-- 视图 1：模型列表                          -->
+        <!-- ════════════════════════════════════════ -->
+        <section class="view" id="listView" style="display:none;">
+            <div class="list-header">
+                <h2 class="list-title">模型列表</h2>
+                <span class="list-count" id="modelCount"></span>
+            </div>
+
+            <div class="model-grid" id="modelGrid">
+                <div class="skeleton-card" id="skeletonLoading">
+                    <div class="skeleton-thumb"></div>
+                    <div class="skeleton-info">
+                        <div class="skeleton-line w-70"></div>
+                        <div class="skeleton-line w-40"></div>
+                    </div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="skeleton-thumb"></div>
+                    <div class="skeleton-info">
+                        <div class="skeleton-line w-70"></div>
+                        <div class="skeleton-line w-40"></div>
+                    </div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="skeleton-thumb"></div>
+                    <div class="skeleton-info">
+                        <div class="skeleton-line w-70"></div>
+                        <div class="skeleton-line w-40"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="empty-state" id="emptyState" style="display:none;">
+                <div class="empty-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 19V5"/>
+                        <path d="M5 12l7-7 7 7"/>
+                    </svg>
+                </div>
+                <h3>还没有模型</h3>
+                <p>上传一段视频，AI 会自动生成 3D 模型</p>
+                <button class="btn btn-primary" id="emptyNewBtn">创建第一个模型</button>
+            </div>
+
+            <div class="empty-state" id="listErrorState" style="display:none;">
+                <div class="empty-icon">😵</div>
+                <h3>加载失败</h3>
+                <p id="listErrorMessage">无法获取模型列表</p>
+                <button class="btn btn-secondary" id="listRetryBtn">重新加载</button>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════ -->
+        <!-- 视图 2：上传/重建                         -->
+        <!-- ════════════════════════════════════════ -->
+        <section class="view" id="uploadView" style="display:none;">
+            <div class="back-link" id="backFromUpload">← 返回列表</div>
+
+            <section class="hero-section">
+                <div class="hero-content">
+                    <h1 class="hero-title">留下你的<span class="highlight">空间记忆</span></h1>
+                    <p class="hero-subtitle">
+                        上传一段视频，AI 会自动生成 3D 模型。<br>
+                        随时都能「回去看看」。
+                    </p>
+
+                    <div class="upload-zone" id="uploadZone">
+                        <div class="upload-icon">📹</div>
+                        <div class="upload-text">
+                            <span class="upload-main">拖拽视频到这里</span>
+                            <span class="upload-hint">支持 mp4 / mov / avi，时长 30 秒以内最佳</span>
+                        </div>
+                        <label class="upload-btn" for="fileInput">
+                            选择视频文件
+                            <input type="file" id="fileInput" accept="video/mp4,video/quicktime,video/x-msvideo,video/webm" hidden>
+                        </label>
+                        <div class="upload-tips">
+                            💡 拍摄建议：拿着手机慢慢走一圈，光线充足效果更好
+                        </div>
+                    </div>
+
+                    <div class="preview-area" id="previewArea" style="display:none;">
+                        <video id="videoPreview" controls muted></video>
+                        <div class="preview-info">
+                            <span id="fileName"></span>
+                            <span id="fileSize"></span>
+                        </div>
+                        <div class="preview-actions">
+                            <button class="btn btn-primary" id="startBtn">🚀 开始重建</button>
+                            <button class="btn btn-secondary" id="changeFileBtn">重新选择</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="progress-section" id="progressSection" style="display:none;">
+                <div class="progress-card">
+                    <h2 class="progress-title">⏳ 正在重建...</h2>
+
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="progressBar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <div class="progress-percent" id="progressPercent">0%</div>
+                    </div>
+
+                    <div class="progress-status" id="progressStatus">正在提取视频帧...</div>
+
+                    <div class="stream-viewer-container" id="streamViewerContainer" style="display:none;">
+                        <div class="stream-viewer" id="streamViewer"></div>
+                        <div class="stream-viewer-label">🔄 实时重建中，点云正在累积...</div>
+                    </div>
+
+                    <div class="progress-spinner" id="progressSpinner">
+                        <div class="spinner"></div>
+                        <span>处理中，请勿关闭页面</span>
+                    </div>
+
+                    <div class="progress-tip">
+                        ⏱ 通常需要 2-10 分钟，取决于视频长度和你的网速
+                    </div>
+                </div>
+            </section>
+
+            <section class="result-section" id="resultSection" style="display:none;">
+                <div class="result-card">
+                    <div class="result-header">
+                        <h2>🎉 重建完成！</h2>
+                        <p>即将跳转到模型详情页...</p>
+                    </div>
+                    <div class="viewer-container" id="viewerContainer">
+                        <div class="viewer-placeholder" id="viewerPlaceholder">
+                            <div class="spinner"></div>
+                            <span>加载模型中...</span>
+                        </div>
+                    </div>
+                    <div class="result-actions">
+                        <button class="btn btn-primary" id="gotoDetailBtn">📋 查看详情</button>
+                        <a class="btn btn-success btn-download" id="downloadBtn" download>📥 下载 .glb</a>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <!-- ════════════════════════════════════════ -->
+        <!-- 视图 3：模型详情页                         -->
+        <!-- ════════════════════════════════════════ -->
+        <section class="view" id="detailView" style="display:none;">
+            <div class="back-link" id="backFromDetail">← 返回列表</div>
+
+            <div class="detail-loading" id="detailLoading">
+                <div class="spinner"></div>
+                <span>正在加载模型详情...</span>
+            </div>
+
+            <div class="detail-loading" id="detailError" style="display:none;">
+                <div class="empty-icon">😵</div>
+                <h3 id="detailErrorTitle">加载失败</h3>
+                <p id="detailErrorMessage">无法获取模型信息</p>
+                <button class="btn btn-secondary" id="detailRetryBtn">重试</button>
+            </div>
+
+            <div class="detail-layout" id="detailContent" style="display:none;">
+                <div class="detail-viewer-col">
+                    <div class="detail-viewer-container" id="detailViewerContainer">
+                        <div class="viewer-placeholder" id="detailViewerPlaceholder">
+                            <div class="spinner"></div>
+                            <span>加载模型中...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-panel">
+                    <div class="detail-name-row">
+                        <input type="text" class="detail-name-input" id="detailNameInput"
+                               placeholder="输入模型名称...">
+                        <button class="btn-name-save" id="detailNameSaveBtn" title="保存">💾</button>
+                        <span class="name-saved-hint" id="nameSavedHint" style="display:none;">已保存</span>
+                    </div>
+                    <div class="detail-file-label" id="detailFileLabel"></div>
+
+                    <div class="detail-meta">
+                        <div class="meta-row">
+                            <span class="meta-label">创建时间</span>
+                            <span class="meta-value" id="detailCreatedAt"></span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-label">文件大小</span>
+                            <span class="meta-value" id="detailFileSize"></span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-label">视频大小</span>
+                            <span class="meta-value" id="detailVideoSize"></span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-label">状态</span>
+                            <span class="status-badge status-completed" id="detailStatus">已完成</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-notes-section">
+                        <label class="notes-label" for="detailNotes">备注</label>
+                        <textarea id="detailNotes" class="notes-textarea" rows="4" placeholder="添加备注..."></textarea>
+                        <button class="btn btn-secondary btn-save-notes" id="saveNotesBtn">💾 保存备注</button>
+                        <span class="notes-saved-hint" id="notesSavedHint" style="display:none;">已保存</span>
+                    </div>
+
+                    <div class="detail-actions">
+                        <a class="btn btn-primary" id="detailDownloadBtn" download>
+                            📥 下载 .glb
+                        </a>
+                        <button class="btn btn-danger" id="detailDeleteBtn">🗑️ 删除</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════ -->
+        <!-- 使用说明                                   -->
+        <!-- ════════════════════════════════════════ -->
+        <section class="info-section" id="howToSection">
+            <h2 class="section-title">使用说明</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>拍摄视频</h3>
+                        <p>用手机慢慢走一圈，保持匀速，光线充足</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>上传等待</h3>
+                        <p>上传视频后，AI 会自动提取帧并重建 3D 模型，大概 2-10 分钟</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>查看 & 分享</h3>
+                        <p>在浏览器里 3D 预览，下载 .glb 文件保存到电脑</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════ -->
+        <!-- 页脚                                      -->
+        <!-- ════════════════════════════════════════ -->
+        <footer class="footer">
+            <p>镜界 · 记录你到过的每个地方</p>
+        </footer>
+    </main>
+
+    <!-- ════════════════════════════════════════════ -->
+    <!-- 删除确认弹窗                                  -->
+    <!-- ════════════════════════════════════════════ -->
+    <div class="modal-overlay" id="deleteModal" style="display:none;">
+        <div class="modal-content">
+            <h3 class="modal-title">确认删除</h3>
+            <p class="modal-text">确定要删除这个模型吗？<br>此操作会同时删除 3D 文件，不可恢复。</p>
+            <div class="modal-actions">
+                <button class="btn btn-danger" id="confirmDeleteBtn">🗑️ 确认删除</button>
+                <button class="btn btn-secondary" id="cancelDeleteBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════ -->
+    <!-- Toast 消息提示                               -->
+    <!-- ════════════════════════════════════════════ -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ════════════════════════════════════════════ -->
+    <!-- Three.js                                     -->
+    <!-- ════════════════════════════════════════════ -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    <script type="module" src="/static/js/viewer.js?v=5"></script>
+    <script type="module" src="/static/js/app.js?v=5"></script>
+</body>
+</html>
