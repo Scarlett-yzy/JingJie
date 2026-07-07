@@ -11,6 +11,7 @@ import sys
 import shutil
 import subprocess
 import tempfile
+import zipfile
 import numpy as np
 import torch
 from os.path import join
@@ -61,6 +62,21 @@ def extract_frames(video_path: str, fps: float) -> str:
             f"错误详情: {stderr[:500]}"
         ) from e
     return temp_dir
+
+
+def extract_zip(zip_path: str) -> str:
+    """解压 zip 文件到临时目录，返回图片目录路径"""
+    import zipfile
+    temp_dir = tempfile.mkdtemp()
+    with zipfile.ZipFile(zip_path, 'r') as zf:
+        zf.extractall(temp_dir)
+    # 找到包含图片的目录（支持子目录或平铺）
+    img_dir = temp_dir
+    # 如果解压后只有一个子目录，那才是真正的图片目录
+    items = os.listdir(temp_dir)
+    if len(items) == 1 and os.path.isdir(os.path.join(temp_dir, items[0])):
+        img_dir = os.path.join(temp_dir, items[0])
+    return img_dir
 
 
 def save_model_to_glb(per_frame_res, save_dir,
@@ -170,6 +186,7 @@ def extract_frame_points(per_frame_res, rgb_imgs, frame_id, conf_thres=1.0, max_
 
 def run_reconstruction(i2p_ckpt, l2w_ckpt, device,
                        video_path, save_dir, config,
+                       input_type="video",
                        progress_callback=None,
                        stream_callback=None,
                        load_model_fn=None, unload_model_fn=None):
@@ -180,8 +197,9 @@ def run_reconstruction(i2p_ckpt, l2w_ckpt, device,
         i2p_ckpt: i2p 模型权重路径
         l2w_ckpt: l2w 模型权重路径
         device: cuda 或 cpu
-        video_path: 输入视频路径
+        video_path: 输入视频/zip 路径
         save_dir: 结果保存目录
+        input_type: "video" 或 "zip"
         config: 配置字典
         progress_callback(percent, message): 进度回调
         stream_callback(frame_id, total_frames, positions, colors):
@@ -222,10 +240,14 @@ def run_reconstruction(i2p_ckpt, l2w_ckpt, device,
     report(2, "正在加载 AI 模型...")
     i2p_model = load_model_fn(Image2PointsModel, 'i2p', i2p_ckpt, device)
 
-    # ── Step 1: 提取视频帧 ──
-    report(5, "正在提取视频帧...")
-    img_dir = extract_frames(video_path, fps)
-    frame_files = sorted([f for f in os.listdir(img_dir) if f.endswith('.jpg')])
+    # ── Step 1: 提取视频帧 / 解压图片 ──
+    if input_type == "zip":
+        report(5, "正在解压图片...")
+        img_dir = extract_zip(video_path)
+    else:
+        report(5, "正在提取视频帧...")
+        img_dir = extract_frames(video_path, fps)
+    frame_files = sorted([f for f in os.listdir(img_dir) if f.endswith(('.jpg', '.jpeg', '.png', '.JPG', '.JPEG', '.PNG'))])
     print(f"提取了 {len(frame_files)} 帧")
 
     # ── Step 2: 加载数据 ──
