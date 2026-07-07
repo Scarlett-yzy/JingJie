@@ -903,7 +903,17 @@ function startWebSocket(taskId) {
     try {
         wsClient = new WebSocket(url);
 
+        // 5 秒连接超时：连不上就放弃，不影响主流程
+        const wsTimeout = setTimeout(() => {
+            if (wsClient && wsClient.readyState !== WebSocket.OPEN) {
+                console.warn('WebSocket 连接超时，跳过实时预览');
+                wsClient.close();
+                wsClient = null;
+            }
+        }, 5000);
+
         wsClient.onopen = () => {
+            clearTimeout(wsTimeout);
             console.log('WebSocket 已连接:', taskId);
             // 显示流式预览容器
             streamViewerContainer.style.display = 'block';
@@ -914,7 +924,6 @@ function startWebSocket(taskId) {
                     autoRotate: false,
                 });
             }
-            showToast('实时重建已连接', 'success');
         };
 
         wsClient.onmessage = (event) => {
@@ -933,10 +942,13 @@ function startWebSocket(taskId) {
         };
 
         wsClient.onerror = (err) => {
-            console.error('WebSocket 错误:', err);
+            clearTimeout(wsTimeout);
+            console.warn('WebSocket 不可用（隧道不支持），继续轮询模式');
+            wsClient = null;
         };
 
         wsClient.onclose = () => {
+            clearTimeout(wsTimeout);
             console.log('WebSocket 已关闭');
             wsClient = null;
         };
