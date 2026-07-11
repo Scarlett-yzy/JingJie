@@ -66,6 +66,20 @@ python -m uvicorn main:app --host 0.0.0.0 --port 8000
 - **用户系统** — 注册登录，模型按用户隔离
 - **GLB 导出** — 下载标准 `.glb` 文件
 
+## 截图预览
+
+<p align="center">
+  <strong>📸 从上传到预览，一键完成</strong>
+</p>
+
+| 步骤 | 截图 |
+|:---:|:---:|
+| **1. 登录/注册**<br>创建账号，开始使用 | <img src="media/01-login.png" width="400" alt="登录页面"> |
+| **2. 上传视频**<br>拖拽或选择文件 | <img src="media/02-upload.png" width="400" alt="上传页面"> |
+| **3. 实时重建**<br>进度条 + 流式点云推送 | <img src="media/03-progress.png" width="400" alt="重建进度"> |
+| **4. 3D 预览**<br>浏览器内旋转/缩放查看 | <img src="media/04-preview.png" width="400" alt="3D预览"> |
+| **5. 模型管理**<br>列表、重命名、导出 GLB | <img src="media/05-models.png" width="400" alt="模型管理"> |
+
 ## 技术栈
 
 | 层 | 技术 |
